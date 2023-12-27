@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style/home.css">
+    <title>Home</title>
+</head>
+<body>
+    <canvas id="canvas" style="background: #111;"></canvas>
+    <div class="container">
+        <div class="container-main">
+            <h2 id="welcomeMessage"></h2>
+            <p>Saldo: <span>R$ 00,01</span> </p>
+            <p>Cotas: <span>00-1/20</span> </p>
+    
+            <div class="control">
+                <div>
+                    <p>Valor Previsto</p>
+                    <span>R$ 570.000.000,00</span>
+                </div>
+        
+                <div>
+                    <p>Saldo Bloqueado</p>
+                    <span>R$ 28.500.000,00</span>
+                </div>
+            </div>
+    
+            <div class="att">
+                <p>ÚLTIMA ATUALIZAÇÃO</p>
+                <div id="current_date">
+                    <script>
+                        document.getElementById("current_date").innerHTML = Date();
+                    </script>
+                </div>
+            </div>
+        </div>
+    
+        <div class="container-numbers">
+            <div>
+                <input type="number" placeholder="(01-60)" id="filterNumber" pattern="[0-9]{2}" maxlength="2">
+                <button onclick="adicionarFiltro()">Adicionar Filtro</button>
+                <div id="filterList"></div>
+            </div>
+
+            <h2>Números</h2>
+            <div id="sequences"></div>
+        </div>
+    </div>
+    <script type="module" src="assets/js/script.js"></script>
+</body>
+</html>
