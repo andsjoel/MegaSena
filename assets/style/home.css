@@ -11,6 +11,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
 }
 
 canvas {
@@ -29,8 +30,8 @@ canvas {
     color: #00cc33;
     background-color: rgba(0, 0, 0, 0.712);
     padding: 15px;
-    border-radius: 22px;
-    border: 4px solid;
+    /* border-radius: 22px; */
+    /* border: 4px solid; */
     width: 350px;
 }
 
@@ -97,13 +98,15 @@ span {
     font-size: 12px;
     background-color: rgba(0, 0, 0, 0.712);
     padding: 15px;
-    border-radius: 22px;
+    /* border-radius: 22px; */
     border: 4px solid;
     width: 350px;
+    height: 280px;
+    /* background-color: red; */
 }
 
 #sequences {
-    height: 300px;
+    height: 80%;
     overflow-y: scroll;
 }
 

@@ -1,171 +1,136 @@
 import mockUsers from './mock.js';
+import mockNumbers from './mockNumbers.js';
 
 document.addEventListener('DOMContentLoaded', function () {
     const entrarButton = document.getElementById('entrarButton');
+    if (entrarButton) {
+        entrarButton.addEventListener('click', entrar);
+    }
 
-    entrarButton.addEventListener('click', function () {
-        entrar();
-    });
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    if (welcomeMessage) {
+        verificarAutenticacao();
+    }
+
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+        iniciarCanvasMatrix(canvas);
+    }
+
+    const sequencesDiv = document.getElementById('sequences');
+    const filterNumberInput = document.getElementById('filterNumber');
+    if (sequencesDiv && filterNumberInput) {
+        configurarFiltroDeNumeros(sequencesDiv, filterNumberInput);
+    }
 });
 
 function entrar() {
     const usernameInput = document.getElementById('username');
-    const enteredUsername = usernameInput.value;
+    const enteredUsername = usernameInput.value.trim();
 
-    // Verificar se o usuário está no mock
     const authenticatedUser = mockUsers.find(user => user.user === enteredUsername);
 
     if (authenticatedUser) {
-        // Armazenar o nome do usuário no localStorage
         localStorage.setItem('username', authenticatedUser.name);
-
-        // Redirecionar para a home
         window.location.href = 'home.html';
     } else {
         alert('Usuário não encontrado. Tente novamente.');
     }
 }
 
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext('2d');
-var W = window.innerWidth;
-var H = window.innerHeight;
-
-canvas.width = W;
-canvas.height = H;
-
-var fontSize = 26;
-var columns = Math.floor(W / fontSize);
-var drops = [];
-for(var i=0; i<columns; i++){
-    drops.push(0);
-}
-var str = "123456789";
-function draw(){
-    context.fillStyle = "rgba(0,0,0,0.05)";
-    context.fillRect(0, 0, W, H);
-    context.fontSize = "700 " + fontSize + "px";
-    context.fillStyle = "#00cc33";
-    for(var i=0; i<columns; i++){
-        var index = Math.floor(Math.random()*str.length);
-        var x = i * fontSize;
-        var y = drops[i] * fontSize;
-        context.fillText(str[index], x, y);
-        if(y >= canvas.height && Math.random() > 0.99){
-            drops[i] = 0;
-        }
-        drops[i]++;
-    }
-}
-draw();
-setInterval(draw, 65);
-
-// ########################## HOME \/
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Recuperar o nome do usuário do localStorage
+function verificarAutenticacao() {
     const username = localStorage.getItem('username');
-
-    // Exibir mensagem de boas-vindas
     if (username) {
         const welcomeMessage = document.getElementById('welcomeMessage');
         welcomeMessage.textContent = `Olá, ${username}!`;
     } else {
-        // Se não houver nome de usuário no localStorage, redirecionar de volta para a página de login
+        alert('Você não está autenticado. Redirecionando para a página de login.');
         window.location.href = 'index.html';
     }
-});
+}
 
-// ##########################  NUMBERS \/
+function iniciarCanvasMatrix(canvas) {
+    const context = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
 
-import mockNumbers from './mockNumbers.js';
+    const fontSize = 16;
+    const columns = Math.floor(W / fontSize);
+    const drops = Array(columns).fill(0);
+    const str = "1234567890";
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Encontrar a div onde as sequências serão exibidas
-    const sequencesDiv = document.getElementById('sequences');
-    const filterNumberInput = document.getElementById('filterNumber');
+    function draw() {
+        context.fillStyle = "rgba(0, 0, 0, 0.05)";
+        context.fillRect(0, 0, W, H);
+
+        context.font = `${fontSize}px monospace`;
+        context.fillStyle = "#00cc33";
+
+        for (let i = 0; i < columns; i++) {
+            const char = str[Math.floor(Math.random() * str.length)];
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+
+            context.fillText(char, x, y);
+
+            if (y >= H && Math.random() > 0.99) drops[i] = 0;
+            drops[i]++;
+        }
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        drops.fill(0);
+    });
+
+    draw();
+}
+
+function configurarFiltroDeNumeros(sequencesDiv, filterNumberInput) {
     const filterListDiv = document.getElementById('filterList');
+    const filtros = new Set();
 
-    // Array para armazenar os números filtrados
-    let filtros = [];
+    document.querySelector('button').addEventListener('click', () => {
+        const filterNumber = filterNumberInput.value.trim();
 
-    // Adicionar evento de clique ao botão de filtrar
-    document.querySelector('button').addEventListener('click', adicionarFiltro);
-
-    function adicionarFiltro() {
-        const filterNumber = filterNumberInput.value;
-
-        // Validar se o número já foi adicionado ao filtro
-        if (!filtros.includes(filterNumber)) {
-            // Adicionar o número ao filtro
-            filtros.push(filterNumber);
-
-            // Exibir os números filtrados
-            exibirFiltros();
-
-            // Filtrar e exibir sequências
-            filtrarSequencias();
-        } else {
+        if (filterNumber && !filtros.has(filterNumber)) {
+            filtros.add(filterNumber);
+            exibirFiltros(filterListDiv, filtros);
+            filtrarSequencias(sequencesDiv, filtros);
+        } else if (filtros.has(filterNumber)) {
             alert('Número já adicionado ao filtro.');
+        } else {
+            alert('Por favor, insira um número válido.');
         }
 
-        // Limpar o input
         filterNumberInput.value = '';
+    });
+
+    function exibirFiltros(filterListDiv, filtros) {
+        filterListDiv.innerHTML = `<strong>Números no Filtro:</strong> ${Array.from(filtros).join(', ')}`;
     }
 
-    function exibirFiltros() {
-        filterListDiv.innerHTML = '<strong>Números no Filtro:</strong> ' + filtros.join(', ');
-    }
-
-    function filtrarSequencias() {
-        // Remover sequências anteriores
+    function filtrarSequencias(sequencesDiv, filtros) {
         sequencesDiv.innerHTML = '';
 
-        // Se não houver filtros, mostrar todas as sequências
-        if (filtros.length === 0) {
-            mockNumbers.forEach((sequence, index) => {
-                const sequenceText = document.createElement('div');
-
-
+        mockNumbers.forEach(sequence => {
+            if (filtros.size === 0 || verificarSequencia(sequence, filtros)) {
+                const sequenceDiv = document.createElement('div');
                 sequence.forEach(number => {
                     const numberParagraph = document.createElement('p');
                     numberParagraph.textContent = number;
-                    numberParagraph.id = `number_${number}`;
-
-                    // Adicionar o número ao texto da sequência
-                    sequenceText.appendChild(numberParagraph);
+                    sequenceDiv.appendChild(numberParagraph);
                 });
-
-                // Adicionar o texto da sequência à div
-                sequencesDiv.appendChild(sequenceText);
-            });
-        } else {
-            // Filtrar e exibir sequências
-            mockNumbers.forEach((sequence, index) => {
-                if (verificarSequencia(sequence)) {
-                    const sequenceText = document.createElement('div');
-
-                    sequence.forEach(number => {
-                        const numberParagraph = document.createElement('p');
-                        numberParagraph.textContent = number;
-                        numberParagraph.id = `number_${number}`;
-
-                        // Adicionar o número ao texto da sequência
-                        sequenceText.appendChild(numberParagraph);
-                    });
-
-                    // Adicionar o texto da sequência à div
-                    sequencesDiv.appendChild(sequenceText);
-                }
-            });
-        }
+                sequencesDiv.appendChild(sequenceDiv);
+            }
+        });
     }
 
-    function verificarSequencia(sequence) {
-        // Verificar se todos os números do filtro estão presentes na sequência
-        return filtros.every(filter => sequence.includes(filter));
+    function verificarSequencia(sequence, filtros) {
+        return Array.from(filtros).every(filter => sequence.includes(filter));
     }
 
-    // Inicialmente, exibir todas as sequências
-    filtrarSequencias();
-});
+    filtrarSequencias(sequencesDiv, filtros);
+}
