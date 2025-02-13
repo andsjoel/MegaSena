@@ -6,6 +6,9 @@ const mockUsers = [
     { user: '6431', name: 'Renato' },
     { user: '7865', name: 'Eduardo' },
     { user: '4678', name: 'Ramon' },
+    { user: '1675', name: 'Lari' },
+    { user: '4368', name: 'Marcos' },
+    { user: '2579', name: 'Iury' },
 ];
 
 export default mockUsers;
